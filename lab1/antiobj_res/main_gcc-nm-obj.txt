@@ -1,0 +1,7 @@
+0000000000000000 R N
+                 U _GLOBAL_OFFSET_TABLE_
+0000000000000004 R m
+0000000000000038 T main
+                 U printf
+                 U puts
+0000000000000000 T rank

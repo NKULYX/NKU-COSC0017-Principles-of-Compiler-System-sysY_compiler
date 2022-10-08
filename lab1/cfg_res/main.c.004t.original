@@ -1,0 +1,64 @@
+
+;; Function rank (null)
+;; enabled by -tree-original
+
+
+{
+  int ans = 1;
+
+    int ans = 1;
+  {
+    int i = start;
+
+        int i = start;
+    goto <D.2322>;
+    <D.2321>:;
+    ans = ans * i;
+    i++ ;
+    <D.2322>:;
+    if (i <= end) goto <D.2321>; else goto <D.2323>;
+    <D.2323>:;
+  }
+  return ans;
+}
+
+
+;; Function main (null)
+;; enabled by -tree-original
+
+
+{
+  int a = 1;
+
+  printf ((const char * restrict) "%s\n", (char *) "DEF TEST!");
+  if (0)
+    {
+      printf ((const char * restrict) "Error1!\n");
+    }
+  if (m > N)
+    {
+      printf ((const char * restrict) "Error!\n");
+    }
+  else
+    {
+      {
+        int cnm = rank (((int) N - (int) m) + 1, N) / rank (1, m);
+
+                int cnm = rank (((int) N - (int) m) + 1, N) / rank (1, m);
+        printf ((const char * restrict) "%d\n", cnm);
+      }
+    }
+    int a = 1;
+  a = a + 1;
+  a = a + 1;
+  a = a + 1;
+  a = a + 1;
+  a = a + 1;
+  a = a + 1;
+  a = a + 1;
+  a = a + 1;
+  printf ((const char * restrict) "%d\n", a);
+  return 0;
+}
+return 0;
+
