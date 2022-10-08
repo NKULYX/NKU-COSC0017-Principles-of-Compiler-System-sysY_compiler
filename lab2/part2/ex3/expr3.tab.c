@@ -73,7 +73,7 @@
 #include <any>
 #include "SymbolTable.h"
 #ifndef YYSTYPE
-#define YYSTYPE double
+#define YYSTYPE std::any
 #endif
 
 int yylex();
@@ -81,7 +81,7 @@ extern int yyparse();
 FILE* yyin;
 void yyerror(const char*s);
 
-SymbolTable symbolTable;
+SymbolTable symTable;
 
 
 #line 88 "expr3.tab.c"
@@ -522,8 +522,8 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    38,    38,    39,    40,    43,    48,    49,    50,    51,
-      52,    53,    54,    55
+       0,    38,    38,    42,    43,    46,    51,    52,    53,    54,
+      55,    56,    57,    58
 };
 #endif
 
@@ -1325,76 +1325,79 @@ yyreduce:
     {
   case 2:
 #line 38 "expr3.y"
-                                        {symbolTable.printAll();}
-#line 1330 "expr3.tab.c"
+                                        {
+                                            std::cout << "The symbol table:" << std::endl;
+                                            symTable.printAll();
+                                        }
+#line 1333 "expr3.tab.c"
     break;
 
   case 5:
-#line 43 "expr3.y"
+#line 46 "expr3.y"
                                         {
-                                            symbolTable.insert((yyvsp[-3]), (yyvsp[-1]));
+                                            symTable.insert(std::any_cast<std::string>(yyvsp[-3]), std::any_cast<double>(yyvsp[-1]));
                                         }
-#line 1338 "expr3.tab.c"
+#line 1341 "expr3.tab.c"
     break;
 
   case 6:
-#line 48 "expr3.y"
-                                        {yyval = (yyvsp[-2]) + (yyvsp[0]);}
-#line 1344 "expr3.tab.c"
+#line 51 "expr3.y"
+                                        {yyval = std::any_cast<double>(yyvsp[-2]) + std::any_cast<double>(yyvsp[0]);}
+#line 1347 "expr3.tab.c"
     break;
 
   case 7:
-#line 49 "expr3.y"
-                                        {yyval = (yyvsp[-2]) - (yyvsp[0]);}
-#line 1350 "expr3.tab.c"
+#line 52 "expr3.y"
+                                        {yyval = std::any_cast<double>(yyvsp[-2]) - std::any_cast<double>(yyvsp[0]);}
+#line 1353 "expr3.tab.c"
     break;
 
   case 8:
-#line 50 "expr3.y"
-                                        {yyval = (yyvsp[-2]) * (yyvsp[0]);}
-#line 1356 "expr3.tab.c"
+#line 53 "expr3.y"
+                                        {yyval = std::any_cast<double>(yyvsp[-2]) * std::any_cast<double>(yyvsp[0]);}
+#line 1359 "expr3.tab.c"
     break;
 
   case 9:
-#line 51 "expr3.y"
-                                        {yyval = (yyvsp[-2]) / (yyvsp[0]);}
-#line 1362 "expr3.tab.c"
+#line 54 "expr3.y"
+                                        {yyval = std::any_cast<double>(yyvsp[-2]) / std::any_cast<double>(yyvsp[0]);}
+#line 1365 "expr3.tab.c"
     break;
 
   case 10:
-#line 52 "expr3.y"
-                                        {yyval = (yyvsp[-1]);}
-#line 1368 "expr3.tab.c"
+#line 55 "expr3.y"
+                                        {yyval = std::any_cast<double>(yyvsp[-1]);}
+#line 1371 "expr3.tab.c"
     break;
 
   case 11:
-#line 53 "expr3.y"
-                                        {yyval = -(yyvsp[0]);}
-#line 1374 "expr3.tab.c"
+#line 56 "expr3.y"
+                                        {yyval = -1 * std::any_cast<double>(yyvsp[0]);}
+#line 1377 "expr3.tab.c"
     break;
 
   case 12:
-#line 54 "expr3.y"
-                                        {yyval = (yyvsp[0]);}
-#line 1380 "expr3.tab.c"
+#line 57 "expr3.y"
+                                        {yyval = std::any_cast<double>(yyvsp[0]);}
+#line 1383 "expr3.tab.c"
     break;
 
   case 13:
-#line 55 "expr3.y"
+#line 58 "expr3.y"
                                         {
-                                            std::string identifier = (yyvsp[0]);
-                                            if(!symbolTable.lookup(identifier)){
+                                            std::string identifier = std::any_cast<std::string>(yyvsp[0]);
+                                            if(!symTable.lookup(identifier)){
                                                 std::cout << "ERROR! " << identifier << " NOT DEFINED!" << std::endl;
                                             }
                                             else{
-                                                yyval = symbolTable.getValue(identifier);
+                                                yyval = symTable.getValue(identifier);
                                             }
                                         }
-#line 1394 "expr3.tab.c"
+#line 1397 "expr3.tab.c"
     break;
 
 
-#line 1398 "expr3.tab.c"
+#line 1401 "expr3.tab.c"
 
       default: break;
     }
@@ -1626,21 +1629,22 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 66 "expr3.y"
+#line 69 "expr3.y"
 
 
 int yylex()
 {
-    int ch;
+    char ch;
     while(1) {
         ch = getchar();
         if(ch == ' ' || ch == '\t' || ch =='\n');
         else if (isdigit(ch)){
-            yylval = 0;
+            double num = 0;
             while(isdigit(ch)){
-                yylval = yylval * 10 + ch - '0';
+                num = num * 10 + ch - '0';
                 ch = getchar();
             }
+            yylval = num;
             ungetc(ch, stdin);
             return NUMBER;
         }
@@ -1651,11 +1655,14 @@ int yylex()
                 ch = getchar();
             }
             ungetc(ch, stdin);
-            if(str=="END!") {
+            if(str=="END") {
                 return END;
             }
             else{
-                symbolTable.insert(str, 0);
+                if(!symTable.lookup(str)){
+                    symTable.insert(str, 0);
+                }
+                yylval = str;
                 return IDENTIFIER;
             }
         }

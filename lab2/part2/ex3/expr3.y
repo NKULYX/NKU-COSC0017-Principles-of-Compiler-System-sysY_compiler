@@ -4,7 +4,7 @@
 #include <any>
 #include "SymbolTable.h"
 #ifndef YYSTYPE
-#define YYSTYPE double
+#define YYSTYPE std::any
 #endif
 
 int yylex();
@@ -12,7 +12,7 @@ extern int yyparse();
 FILE* yyin;
 void yyerror(const char*s);
 
-SymbolTable symbolTable;
+SymbolTable symTable;
 
 %}
 
@@ -35,30 +35,33 @@ SymbolTable symbolTable;
 
 %%
 
-program :   program END                 {symbolTable.printAll();}
+program :   program END                 {
+                                            std::cout << "The symbol table:" << std::endl;
+                                            symTable.printAll();
+                                        }
         |   program stmt
         |   stmt
         ;
 
 stmt    :   IDENTIFIER ASSIGN expr SEMI {
-                                            symbolTable.insert(($1), ($3));
+                                            symTable.insert(std::any_cast<std::string>($1), std::any_cast<double>($3));
                                         }
         ;
 
-expr    :   expr ADD expr               {$$ = ($1) + ($3);}
-        |   expr SUB expr               {$$ = ($1) - ($3);}
-        |   expr MUL expr               {$$ = ($1) * ($3);}
-        |   expr DIV expr               {$$ = ($1) / ($3);}
-        |   LEFT expr RIGHT             {$$ = ($2);}
-        |   SUB expr %prec UMINUS       {$$ = -($2);}
-        |   NUMBER                      {$$ = ($1);}
+expr    :   expr ADD expr               {$$ = std::any_cast<double>($1) + std::any_cast<double>($3);}
+        |   expr SUB expr               {$$ = std::any_cast<double>($1) - std::any_cast<double>($3);}
+        |   expr MUL expr               {$$ = std::any_cast<double>($1) * std::any_cast<double>($3);}
+        |   expr DIV expr               {$$ = std::any_cast<double>($1) / std::any_cast<double>($3);}
+        |   LEFT expr RIGHT             {$$ = std::any_cast<double>($2);}
+        |   SUB expr %prec UMINUS       {$$ = -1 * std::any_cast<double>($2);}
+        |   NUMBER                      {$$ = std::any_cast<double>($1);}
         |   IDENTIFIER                  {
-                                            std::string identifier = ($1);
-                                            if(!symbolTable.lookup(identifier)){
+                                            std::string identifier = std::any_cast<std::string>($1);
+                                            if(!symTable.lookup(identifier)){
                                                 std::cout << "ERROR! " << identifier << " NOT DEFINED!" << std::endl;
                                             }
                                             else{
-                                                $$ = symbolTable.getValue(identifier);
+                                                $$ = symTable.getValue(identifier);
                                             }
                                         }
         ;
@@ -67,16 +70,17 @@ expr    :   expr ADD expr               {$$ = ($1) + ($3);}
 
 int yylex()
 {
-    int ch;
+    char ch;
     while(1) {
         ch = getchar();
         if(ch == ' ' || ch == '\t' || ch =='\n');
         else if (isdigit(ch)){
-            yylval = 0;
+            double num = 0;
             while(isdigit(ch)){
-                yylval = yylval * 10 + ch - '0';
+                num = num * 10 + ch - '0';
                 ch = getchar();
             }
+            yylval = num;
             ungetc(ch, stdin);
             return NUMBER;
         }
@@ -87,11 +91,14 @@ int yylex()
                 ch = getchar();
             }
             ungetc(ch, stdin);
-            if(str=="END!") {
+            if(str=="END") {
                 return END;
             }
             else{
-                symbolTable.insert(str, 0);
+                if(!symTable.lookup(str)){
+                    symTable.insert(str, 0);
+                }
+                yylval = str;
                 return IDENTIFIER;
             }
         }

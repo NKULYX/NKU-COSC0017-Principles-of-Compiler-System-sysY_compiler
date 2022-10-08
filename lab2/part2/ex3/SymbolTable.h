@@ -2,13 +2,13 @@
 #define SYMBOLTABLE_H
 
 #include <string>
-#include <map>
+#include <unordered_map>
 
 class SymbolTable {
-    std::map<std::string, double> symbolTable;
+    std::unordered_map<std::string, double> symbolTable;
 public:
     bool lookup(std::string identifier);
-    bool insert(std::string identifier, double value);
+    void insert(std::string identifier, double value);
     double getValue(std::string identifier);
     void printAll();
 };

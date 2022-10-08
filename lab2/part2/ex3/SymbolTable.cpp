@@ -10,16 +10,17 @@ bool SymbolTable::lookup(std::string identifier)
     return true;
 }
 
-bool SymbolTable::insert(std::string identifier, double value)
+void SymbolTable::insert(std::string identifier, double value)
 {
     auto res = symbolTable.insert(std::pair<std::string, double>(identifier, value));
     if(res.second){
-        return true;
+        std::cout << "Insert " << identifier << "=" << value <<" success!" << std::endl;
     }
     else{
-        std::cout << "Insert " << identifier << "failed!" << std::endl;
-        return false;
+        std::cout << "Update " << identifier << ":" << symbolTable[identifier] << "->" << value << " success!" << std::endl;
+        symbolTable[identifier] = value;
     }
+    printAll();
 }
 
 double SymbolTable::getValue(std::string identifier)

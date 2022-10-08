@@ -1,0 +1,5 @@
+a=10;
+b=2*a;
+_c1s=b/a;
+res = a + b / _c1s;
+END
