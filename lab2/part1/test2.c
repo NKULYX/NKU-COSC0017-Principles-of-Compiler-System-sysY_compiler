@@ -12,22 +12,30 @@ int main()
     int n = getint();
     func(n);
     int a = 10, b;
-    float fb = 3.0;
+    float fb = 1.0;
     b = fb;
     int funRes = inlineFunc(a, b);
+    putint(funRes);
 }
 
 void func(int n)
 {
-    if(n>10){
+    if(n>=10){
         printf("Error!");
+        return;
     }
     res[0] = 1;
     res[1] = 1;
-    int i = 2;
-    while(i<10){
-        res[i] = res[i-1] + res[i-2];
+    int i = 0;
+    while(1){
         i++;
+        if(i < 2){
+            continue;
+        }
+        if(i == n){
+            break;
+        }
+        res[i] = res[i-1] + res[i-2];
     }
     putarray(n,res);
 }
