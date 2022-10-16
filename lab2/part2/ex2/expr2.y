@@ -67,7 +67,7 @@ expr    :   expr ADD expr           {
                                     $$ = (char*) malloc (50*sizeof(char));
                                     strcpy($$, "0");
                                     strcat($$, $2);
-                                    strcat($$, '-');
+                                    strcat($$, "-");
                                     }
         |   NUMBER                  {
                                     $$ = (char*) malloc (50*sizeof(char));

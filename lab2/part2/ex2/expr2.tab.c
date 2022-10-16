@@ -1382,7 +1382,7 @@ yyreduce:
                                     yyval = (char*) malloc (50*sizeof(char));
                                     strcpy(yyval, "0");
                                     strcat(yyval, yyvsp[0]);
-                                    strcat(yyval, '-');
+                                    strcat(yyval, "-");
                                     }
 #line 1388 "expr2.tab.c"
     break;
