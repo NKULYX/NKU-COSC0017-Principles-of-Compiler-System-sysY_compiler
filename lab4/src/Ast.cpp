@@ -131,13 +131,32 @@ void DeclStmt::output(int level)
 
 void DefNode::output(int level)
 {
-    fprintf(yyout, "%*cDefNode\n", level, ' ');
+    std::string constStr = isConst ? "true" : "false";
+    std::string arrayStr = isArray ? "true" : "false";
+    fprintf(yyout, "%*cDefNode\tisConst:%s\tisArray:%s\n", level, ' ', constStr.c_str(), arrayStr.c_str());
     id->output(level+4);
     if(initVal == nullptr){
         fprintf(yyout, "%*cnull\n", level+4, ' ');
     }
     else{
         initVal->output(level+4);
+    }
+}
+
+
+void InitValNode::addNext(ExprNode* next)
+{
+    initValList.push_back(next);
+}
+
+void InitValNode::output(int level)
+{
+    std::string constStr = isConst ? "true" : "false";
+    std::string arrayStr = isArray ? "true" : "false";
+    fprintf(yyout, "%*cInitValNode\tisConst:%s\tisArray:%s\n", level, ' ', constStr.c_str(), arrayStr.c_str());
+    for(auto val : initValList)
+    {
+        val->output(level+4);
     }
 }
 

@@ -83,13 +83,28 @@ public:
     void output(int level);
 };
 
+class InitValNode : public StmtNode
+{
+private:
+    bool isConst;
+    bool isArray;
+    std::vector<ExprNode*> initValList;
+public:
+    InitValNode(bool isConst, bool isArray) : isConst(isConst), isArray(isArray){};
+    void addNext(ExprNode* next);
+    void output(int level);
+};
+
 class DefNode : public StmtNode
 {
 private:
+    bool isConst;
+    bool isArray;
     Id* id;
-    ExprNode* initVal;
+    InitValNode* initVal;
 public:
-    DefNode(Id* id, ExprNode* initVal) : id(id), initVal(initVal){};
+    DefNode(Id* id, InitValNode* initVal, bool isConst, bool isArray) : 
+        isConst(isConst), isArray(isArray), id(id), initVal(initVal){};
     void output(int level);
 };
 

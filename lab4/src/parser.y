@@ -34,7 +34,7 @@
 %token LPAREN RPAREN LBRACKET RBRACKET LBRACE RBRACE COMMA SEMICOLON
 %token ADD SUB MUL DIV MOD AND OR NOT LESS LESSEQ GREAT GREATEQ EQ NEQ ASSIGN
 
-%type <stmttype> Stmts Stmt AssignStmt BlockStmt IfStmt WhileStmt BreakStmt ContinueStmt ReturnStmt DeclStmt ConstDefList ConstDef FuncDef
+%type <stmttype> Stmts Stmt AssignStmt BlockStmt IfStmt WhileStmt BreakStmt ContinueStmt ReturnStmt DeclStmt ConstDefList ConstDef ConstInitVal VarDefList VarDef VarInitVal FuncDef
 %type <exprtype> Exp ConstExp AddExp MulExp UnaryExp PrimaryExp LVal Cond LOrExp LAndExp EqExp RelExp
 %type <type> Type
 
@@ -330,13 +330,16 @@ DeclStmt
     :   CONST Type ConstDefList SEMICOLON {
             $$ = $3;
         }
-    |   Type ID SEMICOLON {
+    |   Type VarDefList SEMICOLON {
+            $$ = $2;
+        }
+    /* |   Type ID SEMICOLON {
             SymbolEntry *se;
             se = new IdentifierSymbolEntry($1, $2, identifiers->getLevel());
             identifiers->install($2, se);
             $$ = new DeclStmt(new Id(se));
             delete []$2;
-        }
+        } */
     ;
 
 // 常量定义列表
@@ -355,7 +358,7 @@ ConstDefList
 
 // 常量定义
 ConstDef
-    :   ID ASSIGN ConstExp {
+    :   ID ASSIGN ConstInitVal {
             // 首先将ID插入符号表中
             Type* type;
             if(currentType->isInt()){
@@ -367,9 +370,76 @@ ConstDef
             SymbolEntry *se;
             se = new IdentifierSymbolEntry(type, $1, identifiers->getLevel());
             identifiers->install($1, se);
-            $$ = new DefNode(new Id(se), $3);
+            $$ = new DefNode(new Id(se), (InitValNode*)$3, true, false);
         }
-    // todo 数组的定义
+    // todo 数组常量的定义
+    ;
+
+// 常量初始化值
+ConstInitVal
+    :   ConstExp {
+            InitValNode* node = new InitValNode(true, false);
+            node->addNext((ExprNode*)$1);
+            $$ = node;
+        }
+    // todo 常量数组的初始化值 
+    ;
+
+// 变量定义列表
+VarDefList
+    :   VarDefList COMMA VarDef {
+            DeclStmt* node = (DeclStmt*) $1;
+            node->addNext((DefNode*)$3);
+            $$ = node;
+        }
+    |   VarDef {
+            DeclStmt* node = new DeclStmt(true);
+            node->addNext((DefNode*)$1);
+            $$ = node;
+        }
+    ;
+
+// 变量定义
+VarDef
+    :   ID {
+            // 首先将ID插入符号表中
+            Type* type;
+            if(currentType->isInt()){
+                type = TypeSystem::intType;
+            }
+            else{
+                type = TypeSystem::floatType;
+            }
+            SymbolEntry *se;
+            se = new IdentifierSymbolEntry(type, $1, identifiers->getLevel());
+            identifiers->install($1, se);
+            $$ = new DefNode(new Id(se), nullptr, false, false);
+        }
+    |   ID ASSIGN VarInitVal {
+            // 首先将ID插入符号表中
+            Type* type;
+            if(currentType->isInt()){
+                type = TypeSystem::intType;
+            }
+            else{
+                type = TypeSystem::floatType;
+            }
+            SymbolEntry *se;
+            se = new IdentifierSymbolEntry(type, $1, identifiers->getLevel());
+            identifiers->install($1, se);
+            $$ = new DefNode(new Id(se), (InitValNode*)$3, false, false);
+        }
+    // todo 数组变量的定义
+    ;
+
+// 变量初始化值
+VarInitVal
+    :   Exp {
+            InitValNode* node = new InitValNode(false, false);
+            node->addNext((ExprNode*)$1);
+            $$ = node;
+        }
+    // todo 数组变量的初始化值
     ;
 
 // 函数定义

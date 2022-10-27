@@ -3,5 +3,7 @@ int main()
     if(1 <=2 && 13 != 10+4){
         const int a = 10, b = 20;
     }
+    int x, y;
+    int m=1, n =2, p;
     return 1;
 }
