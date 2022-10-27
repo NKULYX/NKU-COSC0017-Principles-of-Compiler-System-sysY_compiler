@@ -3,20 +3,19 @@
     /*
     * You will need to comment this line in lab5.
     */
-    #define ONLY_FOR_LEX
+    //#define ONLY_FOR_LEX
     
     #ifdef ONLY_FOR_LEX
     #else
-    #define YYSTYPE void *
-    #include "parser.h"
+    // #define YYSTYPE void *
     #endif
 
     #define YY_NO_UNPUT
     #define YY_NO_INPUT
+    #include "parser.h"
     #include <string>
     #include <sstream>
 
-    #ifdef ONLY_FOR_LEX
     #include <ostream>
     #include <fstream>
     using namespace std;
@@ -25,6 +24,7 @@
 
     int offset = 1;
 
+    #ifdef ONLY_FOR_LEX
     void DEBUG_FOR_LAB4(std::string token, std::string lexeme){
         fprintf(yyout, "[DEBUG LAB4]:  %10s%10s%10d%10d\n",token.c_str(), lexeme.c_str(), yylineno, offset);
     }
@@ -44,6 +44,8 @@ commentelement .
 commentline \n
 commentend "*/"
 %x COMMENT
+%x COMBLOCK
+
 %%
 {commentbegin} {BEGIN COMMENT;}
 <COMMENT>{commentelement} {}
@@ -78,6 +80,15 @@ commentend "*/"
     #else
         return TYPE_VOID;
     #endif 
+}
+"const" {
+    #ifdef ONLY_FOR_LEX
+        DEBUG_FOR_LAB4("CONST", "const");
+        offset+=strlen(yytext);
+    #else
+        return CONST;
+    #endif 
+
 }
 "if" {
     #ifdef ONLY_FOR_LEX
@@ -215,6 +226,14 @@ commentend "*/"
         return DIV;
     #endif
 }
+"%" {
+    #ifdef ONLY_FOR_LEX
+        DEBUG_FOR_LAB4("MOD", "%");
+        offset+=strlen(yytext);
+    #else
+        return MOD;
+    #endif
+}
 "||" {
     #ifdef ONLY_FOR_LEX
         DEBUG_FOR_LAB4("OR", "||");
@@ -303,12 +322,147 @@ commentend "*/"
         return RBRACE;
     #endif
 }
-
+"getint" {
+    #ifdef ONLY_FOR_LEX
+        DEBUG_FOR_LAB4("ID", "getint");
+        offset+=strlen(yytext);
+    #else
+        char *lexeme = new char[strlen(yytext) + 1];
+        strcpy(lexeme, yytext);
+        yylval.strtype = lexeme;
+        Type* funcType = new FunctionType(TypeSystem::intType, {});//返回类型int，无参数
+        SymbolTable* globalTable;    //全域符号表
+        for(globalTable = identifiers;globalTable->getPrev();globalTable = globalTable->getPrev()); //全域符号表
+        SymbolEntry* entry = new IdentifierSymbolEntry(funcType, yytext, 0);//作用域GLOBAL(0)
+        globalTable->install(yytext, entry);
+        return ID;
+    #endif
+}
+"getch" {
+    #ifdef ONLY_FOR_LEX
+        DEBUG_FOR_LAB4("ID", "getch");
+        offset+=strlen(yytext);
+    #else
+        char *lexeme = new char[strlen(yytext) + 1];
+        strcpy(lexeme, yytext);
+        yylval.strtype = lexeme;
+        Type* funcType = new FunctionType(TypeSystem::intType, {});//返回类型int，无参数
+        SymbolTable* globalTable;    //全域符号表
+        for(globalTable = identifiers;globalTable->getPrev();globalTable = globalTable->getPrev()); //全域符号表
+        SymbolEntry* entry = new IdentifierSymbolEntry(funcType, yytext, 0);//作用域GLOBAL(0)
+        globalTable->install(yytext, entry);
+        return ID;
+    #endif
+}
+"getfloat" {
+    #ifdef ONLY_FOR_LEX
+        DEBUG_FOR_LAB4("ID", "getfloat");
+        offset+=strlen(yytext);
+    #else
+        char *lexeme = new char[strlen(yytext) + 1];
+        strcpy(lexeme, yytext);
+        yylval.strtype = lexeme;
+        Type* funcType = new FunctionType(TypeSystem::floatType, {});//返回类型int，无参数
+        SymbolTable* globalTable;    //全域符号表
+        for(globalTable = identifiers;globalTable->getPrev();globalTable = globalTable->getPrev()); //全域符号表
+        SymbolEntry* entry = new IdentifierSymbolEntry(funcType, yytext, 0);//作用域GLOBAL(0)
+        globalTable->install(yytext, entry);
+        return ID;
+    #endif
+}
+"putint" {
+    #ifdef ONLY_FOR_LEX
+        DEBUG_FOR_LAB4("ID", "putint");
+        offset+=strlen(yytext);
+    #else
+        char *lexeme = new char[strlen(yytext) + 1];
+        strcpy(lexeme, yytext);
+        yylval.strtype = lexeme;
+        std::vector<Type*> vec; //形参类型表
+        vec.push_back(TypeSystem::intType);
+        Type* funcType = new FunctionType(TypeSystem::voidType, vec);//返回类型void，参数表[int]
+        SymbolTable* globalTable;    //全域符号表
+        for(globalTable = identifiers;globalTable->getPrev();globalTable = globalTable->getPrev()); //全域符号表
+        SymbolEntry* entry = new IdentifierSymbolEntry(funcType, yytext, 0);//作用域GLOBAL(0)
+        globalTable->install(yytext, entry);
+        return ID;
+    #endif
+}
+"putch" {
+    #ifdef ONLY_FOR_LEX
+        DEBUG_FOR_LAB4("ID", "putch");
+        offset+=strlen(yytext);
+    #else
+        char *lexeme = new char[strlen(yytext) + 1];
+        strcpy(lexeme, yytext);
+        yylval.strtype = lexeme;
+        std::vector<Type*> vec; //形参类型表
+        vec.push_back(TypeSystem::intType);
+        Type* funcType = new FunctionType(TypeSystem::voidType, vec);//返回类型void，参数表[int]
+        SymbolTable* globalTable;    //全域符号表
+        for(globalTable = identifiers;globalTable->getPrev();globalTable = globalTable->getPrev()); //全域符号表
+        SymbolEntry* entry = new IdentifierSymbolEntry(funcType, yytext, 0);//作用域GLOBAL(0)
+        globalTable->install(yytext, entry);
+        return ID;
+    #endif
+}
+"putfloat" {
+    #ifdef ONLY_FOR_LEX
+        DEBUG_FOR_LAB4("ID", "putfloat");
+        offset+=strlen(yytext);
+    #else
+        char *lexeme = new char[strlen(yytext) + 1];
+        strcpy(lexeme, yytext);
+        yylval.strtype = lexeme;
+        std::vector<Type*> vec; //形参类型表
+        vec.push_back(TypeSystem::floatType);
+        Type* funcType = new FunctionType(TypeSystem::voidType, vec);//返回类型void，参数表[int]
+        SymbolTable* globalTable;    //全域符号表
+        for(globalTable = identifiers;globalTable->getPrev();globalTable = globalTable->getPrev()); //全域符号表
+        SymbolEntry* entry = new IdentifierSymbolEntry(funcType, yytext, 0);//作用域GLOBAL(0)
+        globalTable->install(yytext, entry);
+        return ID;
+    #endif
+    /*todo: implement getarray, putarray, getfarray, putfarray, putf*/
+}
+"starttime" {
+    #ifdef ONLY_FOR_LEX
+        DEBUG_FOR_LAB4("ID", "starttime");
+        offset+=strlen(yytext);
+    #else
+        char *lexeme = new char[strlen(yytext) + 1];
+        strcpy(lexeme, yytext);
+        yylval.strtype = lexeme;
+        Type* funcType = new FunctionType(TypeSystem::voidType, {});//返回类型void，无参数
+        SymbolTable* globalTable;    //全域符号表
+        for(globalTable = identifiers;globalTable->getPrev();globalTable = globalTable->getPrev()); //全域符号表
+        SymbolEntry* entry = new IdentifierSymbolEntry(funcType, yytext, 0);//作用域GLOBAL(0)
+        globalTable->install(yytext, entry);
+        return ID;
+    #endif
+}
+"stoptime" {
+    #ifdef ONLY_FOR_LEX
+        DEBUG_FOR_LAB4("ID", "stoptime");
+        offset+=strlen(yytext);
+    #else
+        char *lexeme = new char[strlen(yytext) + 1];
+        strcpy(lexeme, yytext);
+        yylval.strtype = lexeme;
+        Type* funcType = new FunctionType(TypeSystem::voidType, {});//返回类型void，无参数
+        SymbolTable* globalTable;    //全域符号表
+        for(globalTable = identifiers;globalTable->getPrev();globalTable = globalTable->getPrev()); //全域符号表
+        SymbolEntry* entry = new IdentifierSymbolEntry(funcType, yytext, 0);//作用域GLOBAL(0)
+        globalTable->install(yytext, entry);
+        return ID;
+    #endif
+}
 {INTEGER} {
     #ifdef ONLY_FOR_LEX
         DEBUG_FOR_LAB4("INTEGER", ""+std::string(yytext));
         offset+=strlen(yytext);
     #else
+        yylval.itype = atoi(yytext);
         return INTEGER;
     #endif
 }
@@ -317,6 +471,7 @@ commentend "*/"
         DEBUG_FOR_LAB4("FLOATING", ""+std::string(yytext));
         offset+=strlen(yytext);
     #else
+        yylval.ftype = atoi(yytext);
         return FLOATING;
     #endif
 }
@@ -325,38 +480,49 @@ commentend "*/"
         DEBUG_FOR_LAB4("ID", ""+std::string(yytext));
         offset+=strlen(yytext);
     #else
+        char* lexeme = new char[strlen(yytext) + 1];
+        strcpy(lexeme, yytext);
+        yylval.strtype = lexeme;
         return ID;
     #endif
 }
 {OCTAL} {
+    char* stop;
+    int dec = strtol(yytext, &stop, 8);
     #ifdef ONLY_FOR_LEX
-        char* stop;
-        int dec = strtol(yytext, &stop, 8);
         DEBUG_FOR_LAB4("DECIMAL", ""+to_string(dec));
         offset+=strlen(yytext);
     #else
+        yylval.itype = dec;
         return INTEGER;
     #endif 
 }
 {HEXAL} {
+    char* stop;
+    int dec = strtol(yytext, &stop, 16);
     #ifdef ONLY_FOR_LEX
-        char* stop;
-        int dec = strtol(yytext, &stop, 16);
         DEBUG_FOR_LAB4("DECIMAL", ""+to_string(dec));
         offset+=strlen(yytext);
     #else
+        yylval.itype = dec;
         return INTEGER;
     #endif 
 }
-{EOL} yylineno++,offset=1;
+{EOL} {
+    #ifdef ONLY_FOR_LEX
+        yylineno++;
+        offset=1;
+    #endif
+}
 {WHITE} {
-    if(yytext[0] == 32)
-        offset+=1;
-    else
-        offset+=4;
+    #ifdef ONLY_FOR_LEX
+        if(yytext[0] == 32)
+            offset+=1;
+        else
+            offset+=4;
+    #endif
 }
 {COMMENT}
-
 %%
 
 #ifdef ONLY_FOR_LEX

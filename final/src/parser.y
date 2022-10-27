@@ -41,6 +41,7 @@ Type            :       TYPE_INT
 // 数组的常量下标表示
 ArrConstIndices :       ArrConstIndices LBRACKET ConstExp RBRACKET
                 |       LBRACKET ConstExp RBRACKET
+                ;
 
 // 数组的变量下标表示
 ArrValIndices   :       ArrValIndices LBRACKET Exp RBRACKET
@@ -211,7 +212,7 @@ FuncCall        :       ID LPAREN FuncCallParams RPAREN
 
 // 函数调用参数列表
 FuncCallParams  :       FuncCallParams COMMA Exp
-                |       Exp
+                |       Exp   
                 ;
 
 // 单目运算符
@@ -248,9 +249,9 @@ RelExp          :       RelExp LESS AddExp
                 ;
 %%
 
-int yyerror(char const* message)
+/* int yyerror(char const* message)
 {
     std::cerr << message << std::endl;
     std::cerr << yytext << std::endl;
     return -1;
-}
+} */
