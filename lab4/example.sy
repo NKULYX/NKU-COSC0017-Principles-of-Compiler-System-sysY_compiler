@@ -1,9 +1,29 @@
+const int aaa = 10;
+
+int func(int a, int b)
+{
+    return a + b;
+}
+
+int func1()
+{
+    int a = getint();
+    return 1;
+}
+
 int main()
 {
+    int input = func1();
+    int x = 1, y = 0;
     if(1 <=2 && 13 != 10+4){
         const int a = 10, b = 20;
     }
-    int x, y;
-    int m=1, n =2, p;
-    return 1;
+    while(x < 10)
+    {
+        y = y+1;
+        x = x+1;
+    }
+    int m=1+x, n =2, p;
+    int f = func(x,y);
+    return 1+aaa;
 }

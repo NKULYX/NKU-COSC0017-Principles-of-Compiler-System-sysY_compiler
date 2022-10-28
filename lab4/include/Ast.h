@@ -59,11 +59,32 @@ class Id : public ExprNode
 {
 public:
     Id(SymbolEntry *se) : ExprNode(se){};
+    SymbolEntry* getSymbolEntry() {return symbolEntry;}
     void output(int level);
 };
 
 class StmtNode : public Node
 {};
+
+class FuncCallParamsNode : public StmtNode
+{
+private:
+    std::vector<ExprNode*> paramsList;
+public:
+    FuncCallParamsNode(){};
+    void addNext(ExprNode* next);
+    void output(int level);
+};
+
+class FuncCallNode : public ExprNode
+{
+private:
+    Id* funcId;
+    FuncCallParamsNode* params;
+public:
+    FuncCallNode(SymbolEntry *se, Id* id, FuncCallParamsNode* params) : ExprNode(se), funcId(id), params(params){};
+    void output(int level);
+};
 
 class CompoundStmt : public StmtNode
 {
@@ -77,9 +98,10 @@ public:
 class SeqNode : public StmtNode
 {
 private:
-    StmtNode *stmt1, *stmt2;
+    std::vector<StmtNode*> stmtList;
 public:
-    SeqNode(StmtNode *stmt1, StmtNode *stmt2) : stmt1(stmt1), stmt2(stmt2){};
+    SeqNode(){};
+    void addNext(StmtNode* next);
     void output(int level);
 };
 
@@ -105,6 +127,7 @@ private:
 public:
     DefNode(Id* id, InitValNode* initVal, bool isConst, bool isArray) : 
         isConst(isConst), isArray(isArray), id(id), initVal(initVal){};
+    Id* getId() {return id;}
     void output(int level);
 };
 
@@ -140,6 +163,16 @@ public:
     void output(int level);
 };
 
+class WhileStmt : public StmtNode
+{
+private:
+    ExprNode *cond;
+    StmtNode *bodyStmt;
+public:
+    WhileStmt(ExprNode *cond, StmtNode *bodyStmt) : cond(cond), bodyStmt(bodyStmt){};
+    void output(int level);
+};
+
 class ReturnStmt : public StmtNode
 {
 private:
@@ -159,13 +192,24 @@ public:
     void output(int level);
 };
 
+class FuncDefParamsNode : public StmtNode
+{
+private:
+    std::vector<Id*> paramsList;
+public:
+    FuncDefParamsNode() {};
+    void addNext(Id* next);
+    void output(int level);
+};
+
 class FunctionDef : public StmtNode
 {
 private:
     SymbolEntry *se;
+    FuncDefParamsNode *params;
     StmtNode *stmt;
 public:
-    FunctionDef(SymbolEntry *se, StmtNode *stmt) : se(se), stmt(stmt){};
+    FunctionDef(SymbolEntry *se, FuncDefParamsNode *params, StmtNode *stmt) : se(se), params(params), stmt(stmt){};
     void output(int level);
 };
 

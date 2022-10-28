@@ -103,17 +103,55 @@ void Id::output(int level)
             name.c_str(), scope, type.c_str());
 }
 
+void FuncCallNode::output(int level)
+{
+    std::string name, type;
+    int scope;
+    SymbolEntry* funcEntry = funcId->getSymbolEntry();
+    name = funcEntry->toStr();
+    type = funcEntry->getType()->toStr();
+    scope = dynamic_cast<IdentifierSymbolEntry*>(funcEntry)->getScope();
+    fprintf(yyout, "%*cFuncCallNode\tfuncName: %s\t funcType: %s\tscope: %d\n", 
+            level, ' ', name.c_str(), type.c_str(), scope);
+    if(params!=nullptr){
+        params->output(level+4);
+    }
+    else{
+        fprintf(yyout, "%*cFuncCallParamsNode NULL\n", level+4, ' ');
+    }
+}
+
+void FuncCallParamsNode::addNext(ExprNode* next)
+{
+    paramsList.push_back(next);
+}
+
+void FuncCallParamsNode::output(int level)
+{
+    fprintf(yyout, "%*cFuncCallParamsNode\n", level, ' ');
+    for(auto param : paramsList){
+        param->output(level+4);
+    }
+}
+
 void CompoundStmt::output(int level)
 {
     fprintf(yyout, "%*cCompoundStmt\n", level, ' ');
     stmt->output(level + 4);
 }
 
+void SeqNode::addNext(StmtNode* next)
+{
+    stmtList.push_back(next);
+}
+
 void SeqNode::output(int level)
 {
     fprintf(yyout, "%*cSequence\n", level, ' ');
-    stmt1->output(level + 4);
-    stmt2->output(level + 4);
+    for(auto stmt : stmtList)
+    {
+        stmt->output(level + 4);
+    }
 }
 
 void DeclStmt::addNext(DefNode* next)
@@ -142,7 +180,6 @@ void DefNode::output(int level)
         initVal->output(level+4);
     }
 }
-
 
 void InitValNode::addNext(ExprNode* next)
 {
@@ -175,6 +212,13 @@ void IfElseStmt::output(int level)
     elseStmt->output(level + 4);
 }
 
+void WhileStmt::output(int level)
+{
+    fprintf(yyout, "%*cWhileStmt\n", level, ' ');
+    cond->output(level+4);
+    bodyStmt->output(level+4);
+}
+
 void ReturnStmt::output(int level)
 {
     fprintf(yyout, "%*cReturnStmt\n", level, ' ');
@@ -188,6 +232,19 @@ void AssignStmt::output(int level)
     expr->output(level + 4);
 }
 
+void FuncDefParamsNode::addNext(Id* next)
+{
+    paramsList.push_back(next);
+}
+
+void FuncDefParamsNode::output(int level)
+{
+    fprintf(yyout, "%*cFuncDefParamsNode\n", level, ' ');
+    for(auto param : paramsList){
+        param->output(level+4);
+    }
+}
+
 void FunctionDef::output(int level)
 {
     std::string name, type;
@@ -195,5 +252,11 @@ void FunctionDef::output(int level)
     type = se->getType()->toStr();
     fprintf(yyout, "%*cFunctionDefine function name: %s, type: %s\n", level, ' ', 
             name.c_str(), type.c_str());
+    if(params!=nullptr){
+        params->output(level+4);
+    }
+    else{
+        fprintf(yyout, "%*cFuncDefParamsNode NULL\n", level+4, ' ');
+    }
     stmt->output(level + 4);
 }

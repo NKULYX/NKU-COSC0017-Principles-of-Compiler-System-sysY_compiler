@@ -34,7 +34,8 @@
 %token LPAREN RPAREN LBRACKET RBRACKET LBRACE RBRACE COMMA SEMICOLON
 %token ADD SUB MUL DIV MOD AND OR NOT LESS LESSEQ GREAT GREATEQ EQ NEQ ASSIGN
 
-%type <stmttype> Stmts Stmt AssignStmt BlockStmt IfStmt WhileStmt BreakStmt ContinueStmt ReturnStmt DeclStmt ConstDefList ConstDef ConstInitVal VarDefList VarDef VarInitVal FuncDef
+%type <stmttype> Stmts Stmt AssignStmt BlockStmt IfStmt WhileStmt BreakStmt ContinueStmt ReturnStmt
+%type <stmttype> DeclStmt ConstDefList ConstDef ConstInitVal VarDefList VarDef VarInitVal FuncDef FuncParams FuncParam FuncRParams
 %type <exprtype> Exp ConstExp AddExp MulExp UnaryExp PrimaryExp LVal Cond LOrExp LAndExp EqExp RelExp
 %type <type> Type
 
@@ -51,11 +52,15 @@ Program
 
 // 语句序列
 Stmts
-    :   Stmt{
-            $$=$1;
+    :   Stmts Stmt{
+            SeqNode* node = (SeqNode*)$1;
+            node->addNext((StmtNode*)$2);
+            $$ = (StmtNode*) node;
         }
-    |   Stmts Stmt{
-            $$ = new SeqNode($1, $2);
+    |   Stmt{
+            SeqNode* node = new SeqNode();
+            node->addNext((StmtNode*)$1);
+            $$ = (StmtNode*) node;
         }
     ;
 
@@ -119,10 +124,10 @@ IfStmt
         }
     ;
 
-//todo while 语句
+//while 语句
 WhileStmt
     :   WHILE LPAREN Cond RPAREN Stmt {
-            std::cout << "WhileStmt -> WHILE LPAREN Cond RPAREN Stmt" << std::endl;
+            $$ = new WhileStmt($3,$5);
         }
     ;
 
@@ -204,13 +209,22 @@ UnaryExp
     :   PrimaryExp {
             $$ = $1;
         }
-    |   ID LPAREN RPAREN {
+    /* |   ID LPAREN RPAREN {
             std::cout << "UnaryExp -> ID LPAREN RPAREN" << std::endl;
-        }
-    // todo 函数调用
-    /* |   ID LPAREN FuncRParams RPAREN {
-            std::cout << "UnaryExp -> ID LPAREN FuncRParams RPAREN" << std::endl;
         } */
+    // todo 函数调用
+    |   ID LPAREN FuncRParams RPAREN {
+            SymbolEntry *se;
+            se = identifiers->lookup($1);
+            if(se == nullptr)
+            {
+                fprintf(stderr, "identifier \"%s\" is undefined\n", (char*)$1);
+                delete [](char*)$1;
+                assert(se != nullptr);
+            }
+            SymbolEntry *tmp = new TemporarySymbolEntry(se->getType(), SymbolTable::getLabel());
+            $$ = new FuncCallNode(tmp, new Id(se), (FuncCallParamsNode*)$3);
+        }
     |   ADD UnaryExp {
             $$ = $2;
         }
@@ -241,9 +255,21 @@ PrimaryExp
     ;
 
 //todo 函数参数列表
-/* FuncRParams
-    :
-    ; */
+FuncRParams
+    :   FuncRParams COMMA Exp {
+            FuncCallParamsNode* node = (FuncCallParamsNode*) $1;
+            node->addNext($3);
+            $$ = node;
+        }
+    |   Exp {
+            FuncCallParamsNode* node = new FuncCallParamsNode();
+            node->addNext($1);
+            $$ = node;
+        }
+    |   %empty {
+            $$ = nullptr;
+        }
+    ;
 
 // 条件表达式
 Cond
@@ -444,27 +470,52 @@ VarInitVal
 
 // 函数定义
 FuncDef
-    :
-    Type ID {
-        Type *funcType;
-        funcType = new FunctionType($1,{});
-        SymbolEntry *se = new IdentifierSymbolEntry(funcType, $2, identifiers->getLevel());
-        identifiers->install($2, se);
-        identifiers = new SymbolTable(identifiers);
-    }
-    LPAREN RPAREN
-    BlockStmt
-    {
-        SymbolEntry *se;
-        se = identifiers->lookup($2);
-        assert(se != nullptr);
-        $$ = new FunctionDef(se, $6);
-        SymbolTable *top = identifiers;
-        identifiers = identifiers->getPrev();
-        delete top;
-        delete []$2;
-    }
+    :   Type ID {
+            Type *funcType;
+            funcType = new FunctionType($1,{});
+            SymbolEntry *se = new IdentifierSymbolEntry(funcType, $2, identifiers->getLevel());
+            identifiers->install($2, se);
+            identifiers = new SymbolTable(identifiers);
+        }
+        LPAREN FuncParams RPAREN BlockStmt {
+            SymbolEntry *se;
+            se = identifiers->lookup($2);
+            assert(se != nullptr);
+            $$ = new FunctionDef(se, (FuncDefParamsNode*)$5, $7);
+            SymbolTable *top = identifiers;
+            identifiers = identifiers->getPrev();
+            delete top;
+            delete []$2;
+        }
     ;
+
+// 函数参数列表
+FuncParams
+    :   FuncParams COMMA FuncParam {
+            FuncDefParamsNode* node = (FuncDefParamsNode*)$1;
+            node->addNext(((DefNode*)$3)->getId());
+            $$ = node;
+        }
+    |   FuncParam {
+            FuncDefParamsNode* node = new FuncDefParamsNode();
+            node->addNext(((DefNode*)$1)->getId());
+            $$ = node;
+        }
+    |   %empty {
+            $$ = nullptr;
+        }
+    ;
+
+// 函数参数
+FuncParam
+    :   Type ID {
+            SymbolEntry *se = new IdentifierSymbolEntry($1, $2, identifiers->getLevel());
+            identifiers->install($2, se);
+            $$ = new DefNode(new Id(se), nullptr, false, false);
+        }
+    // todo 数组函数参数
+    ;
+    
 %%
 
 int yyerror(char const* message)
