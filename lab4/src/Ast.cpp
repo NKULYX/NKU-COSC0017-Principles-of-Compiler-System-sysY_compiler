@@ -103,6 +103,25 @@ void Id::output(int level)
             name.c_str(), scope, type.c_str());
 }
 
+void EmptyStmt::output(int level)
+{
+    fprintf(yyout, "%*cEmptyStmt\n", level, ' ');
+}
+
+void ExprStmtNode::addNext(ExprNode* next)
+{
+    exprList.push_back(next);
+}
+
+void ExprStmtNode::output(int level)
+{
+    fprintf(yyout, "%*cExprStmtNode\n", level, ' ');
+    for(auto expr : exprList)
+    {
+        expr->output(level+4);
+    }
+}
+
 void FuncCallNode::output(int level)
 {
     std::string name, type;
@@ -137,7 +156,12 @@ void FuncCallParamsNode::output(int level)
 void CompoundStmt::output(int level)
 {
     fprintf(yyout, "%*cCompoundStmt\n", level, ' ');
-    stmt->output(level + 4);
+    if(stmt == nullptr){
+        fprintf(yyout, "%*cNull Stmt\n", level+4, ' ');
+    }
+    else{
+        stmt->output(level + 4);
+    }
 }
 
 void SeqNode::addNext(StmtNode* next)

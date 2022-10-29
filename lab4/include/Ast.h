@@ -66,6 +66,23 @@ public:
 class StmtNode : public Node
 {};
 
+class EmptyStmt : public StmtNode
+{
+public:
+    EmptyStmt(){};
+    void output(int level);
+};
+
+class ExprStmtNode : public StmtNode
+{
+private:
+    std::vector<ExprNode*> exprList;
+public:
+    ExprStmtNode(){};
+    void addNext(ExprNode* next);
+    void output(int level);
+};
+
 class FuncCallParamsNode : public StmtNode
 {
 private:

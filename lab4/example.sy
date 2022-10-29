@@ -2,12 +2,15 @@ const int aaa = 10;
 
 int func(int a, int b)
 {
+    if(a>1) putint(a);
+    else ;
     return a + b;
 }
 
 int func1()
 {
     int a = getint();
+    putint(a), a + 1;
     return 1;
 }
 
@@ -17,6 +20,9 @@ int main()
     int x = 1, y = 0;
     if(1 <=2 && 13 != 10+4){
         const int a = 10, b = 20;
+    }
+    else{
+
     }
     while(x < 10)
     {

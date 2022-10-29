@@ -34,7 +34,7 @@
 %token LPAREN RPAREN LBRACKET RBRACKET LBRACE RBRACE COMMA SEMICOLON
 %token ADD SUB MUL DIV MOD AND OR NOT LESS LESSEQ GREAT GREATEQ EQ NEQ ASSIGN
 
-%type <stmttype> Stmts Stmt AssignStmt BlockStmt IfStmt WhileStmt BreakStmt ContinueStmt ReturnStmt
+%type <stmttype> Stmts Stmt AssignStmt ExpStmt BlockStmt IfStmt WhileStmt BreakStmt ContinueStmt ReturnStmt
 %type <stmttype> DeclStmt ConstDefList ConstDef ConstInitVal VarDefList VarDef VarInitVal FuncDef FuncParams FuncParam FuncRParams
 %type <exprtype> Exp ConstExp AddExp MulExp UnaryExp PrimaryExp LVal Cond LOrExp LAndExp EqExp RelExp
 %type <type> Type
@@ -67,6 +67,7 @@ Stmts
 // 语句
 Stmt
     :   AssignStmt {$$=$1;}
+    |   ExpStmt SEMICOLON{$$=$1;}
     |   BlockStmt {$$=$1;}
     |   IfStmt {$$=$1;}
     |   WhileStmt {$$=$1;}
@@ -75,6 +76,7 @@ Stmt
     |   ReturnStmt {$$=$1;}
     |   DeclStmt {$$=$1;}
     |   FuncDef {$$=$1;}
+    |   SEMICOLON {$$ = new EmptyStmt();}
     ;
 
 // 左值
@@ -101,6 +103,20 @@ AssignStmt
         }
     ;
 
+// 表达式语句
+ExpStmt
+    :   ExpStmt COMMA Exp {
+            ExprStmtNode* node = (ExprStmtNode*)$1;
+            node->addNext($3);
+            $$ = node;
+        }
+    |   Exp {
+            ExprStmtNode* node = new ExprStmtNode();
+            node->addNext($1);
+            $$ = node;
+        }
+    ;
+
 // 语句快
 BlockStmt
     :   LBRACE {
@@ -111,6 +127,9 @@ BlockStmt
             SymbolTable *top = identifiers;
             identifiers = identifiers->getPrev();
             delete top;
+        }
+    |   LBRACE RBRACE {
+            $$ = new CompoundStmt(nullptr);
         }
     ;
 
@@ -209,10 +228,6 @@ UnaryExp
     :   PrimaryExp {
             $$ = $1;
         }
-    /* |   ID LPAREN RPAREN {
-            std::cout << "UnaryExp -> ID LPAREN RPAREN" << std::endl;
-        } */
-    // todo 函数调用
     |   ID LPAREN FuncRParams RPAREN {
             SymbolEntry *se;
             se = identifiers->lookup($1);
@@ -254,7 +269,7 @@ PrimaryExp
     } */
     ;
 
-//todo 函数参数列表
+// 函数参数列表
 FuncRParams
     :   FuncRParams COMMA Exp {
             FuncCallParamsNode* node = (FuncCallParamsNode*) $1;
@@ -359,13 +374,6 @@ DeclStmt
     |   Type VarDefList SEMICOLON {
             $$ = $2;
         }
-    /* |   Type ID SEMICOLON {
-            SymbolEntry *se;
-            se = new IdentifierSymbolEntry($1, $2, identifiers->getLevel());
-            identifiers->install($2, se);
-            $$ = new DeclStmt(new Id(se));
-            delete []$2;
-        } */
     ;
 
 // 常量定义列表
