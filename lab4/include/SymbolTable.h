@@ -6,13 +6,17 @@
 
 class Type;
 
+/**
+ * SymbolEntry
+ * To describe an identifier in the SynbolTable
+*/
 class SymbolEntry
 {
 private:
-    int kind;
+    int kind;       // Attribute of the identifier
 protected:
-    enum {CONSTANT, VARIABLE, TEMPORARY};
-    Type *type;
+    enum {CONSTANT, VARIABLE, TEMPORARY};   // Identifier attribute values : [CONSTANT->literal value] [VARIABLE->variable] [TEMPORARY->temporary variable]
+    Type *type;     // Type of the identifier
 
 public:
     SymbolEntry(Type *type, int kind);
@@ -36,12 +40,12 @@ public:
 class ConstantSymbolEntry : public SymbolEntry
 {
 private:
-    int value;
+    double value;
 
 public:
-    ConstantSymbolEntry(Type *type, int value);
+    ConstantSymbolEntry(Type *type, double value);
     virtual ~ConstantSymbolEntry() {};
-    int getValue() const {return value;};
+    double getValue() const {return value;};
     std::string toStr();
     // You can add any function you need here.
 };

@@ -8,7 +8,7 @@ class Type
 private:
     int kind;
 protected:
-    enum {INT, FLOAT, CONST_INT, CONST_FLOAT, VOID, FUNC};
+    enum {INT, FLOAT, CONST_INT, CONST_FLOAT, VOID, BOOL, FUNC};
 public:
     Type(int kind) : kind(kind) {};
     virtual ~Type() {};
@@ -17,6 +17,7 @@ public:
     bool isFloat() const {return kind == FLOAT;};
     bool isConstInt() const {return kind == CONST_INT;}
     bool isConstFloat() const {return kind == CONST_FLOAT;}
+    bool isBool() const {return kind == BOOL;}
     bool isVoid() const {return kind == VOID;};
     bool isFunc() const {return kind == FUNC;};
 };
@@ -51,6 +52,13 @@ public:
     std::string toStr();
 };
 
+class BoolType : public Type
+{
+public:
+    BoolType() : Type(Type::BOOL){};
+    std::string toStr();
+};
+
 class VoidType : public Type
 {
 public:
@@ -77,12 +85,14 @@ private:
     static FloatType commonFloat;
     static ConstIntType commonConstInt;
     static ConstFloatType commonConstFloat;
+    static BoolType commonBool;
     static VoidType commonVoid;
 public:
     static Type *intType;
     static Type *floatType;
     static Type *constIntType;
     static Type *constFloatType;
+    static Type *boolType;
     static Type *voidType;
 };
 

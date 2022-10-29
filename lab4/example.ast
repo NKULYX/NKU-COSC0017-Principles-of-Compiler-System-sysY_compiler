@@ -1,0 +1,139 @@
+program
+    Sequence
+        DeclStmt
+            DefNode	isConst:true	isArray:false
+                Id	name: aaa	scope: 0	type: const int
+                InitValNode	isConst:true	isArray:false
+                    IntegerLiteral	value: 10	type: int
+        DeclStmt
+            DefNode	isConst:false	isArray:false
+                Id	name: ff	scope: 0	type: float
+                InitValNode	isConst:false	isArray:false
+                    IntegerLiteral	value: 1	type: float
+        FunctionDefine function name: func, type: int()
+            FuncDefParamsNode
+                Id	name: a	scope: 1	type: int
+                Id	name: b	scope: 1	type: int
+            CompoundStmt
+                Sequence
+                    IfElseStmt
+                        BinaryExpr	op: great	type: bool
+                            Id	name: a	scope: 1	type: int
+                            IntegerLiteral	value: 1	type: int
+                        ExprStmtNode
+                            FuncCallNode	funcName: putint	 funcType: void()	scope: 0
+                                FuncCallParamsNode
+                                    Id	name: a	scope: 1	type: int
+                        EmptyStmt
+                    ReturnStmt
+                        BinaryExpr	op: add	type: float
+                            BinaryExpr	op: add	type: int
+                                OneOpExpr	op: minus	type: int
+                                    Id	name: a	scope: 1	type: int
+                                Id	name: b	scope: 1	type: int
+                            IntegerLiteral	value: 1	type: float
+        FunctionDefine function name: func1, type: int()
+            FuncDefParamsNode NULL
+            CompoundStmt
+                Sequence
+                    DeclStmt
+                        DefNode	isConst:false	isArray:false
+                            Id	name: a	scope: 2	type: int
+                            InitValNode	isConst:false	isArray:false
+                                FuncCallNode	funcName: getint	 funcType: int()	scope: 0
+                                    FuncCallParamsNode NULL
+                    ExprStmtNode
+                        FuncCallNode	funcName: putint	 funcType: void()	scope: 0
+                            FuncCallParamsNode
+                                Id	name: a	scope: 2	type: int
+                        BinaryExpr	op: add	type: int
+                            Id	name: a	scope: 2	type: int
+                            IntegerLiteral	value: 1	type: int
+                    ReturnStmt
+                        BinaryExpr	op: add	type: float
+                            IntegerLiteral	value: 1	type: int
+                            IntegerLiteral	value: 1	type: float
+        FunctionDefine function name: main, type: int()
+            FuncDefParamsNode NULL
+            CompoundStmt
+                Sequence
+                    DeclStmt
+                        DefNode	isConst:false	isArray:false
+                            Id	name: input	scope: 2	type: int
+                            InitValNode	isConst:false	isArray:false
+                                FuncCallNode	funcName: func1	 funcType: int()	scope: 0
+                                    FuncCallParamsNode NULL
+                    DeclStmt
+                        DefNode	isConst:false	isArray:false
+                            Id	name: x	scope: 2	type: int
+                            InitValNode	isConst:false	isArray:false
+                                IntegerLiteral	value: 1	type: int
+                        DefNode	isConst:false	isArray:false
+                            Id	name: y	scope: 2	type: int
+                            InitValNode	isConst:false	isArray:false
+                                IntegerLiteral	value: 0	type: int
+                    IfElseStmt
+                        BinaryExpr	op: and	type: bool
+                            BinaryExpr	op: lesseq	type: bool
+                                IntegerLiteral	value: 1	type: int
+                                IntegerLiteral	value: 2	type: int
+                            BinaryExpr	op: neq	type: bool
+                                IntegerLiteral	value: 13	type: int
+                                BinaryExpr	op: add	type: int
+                                    IntegerLiteral	value: 10	type: int
+                                    IntegerLiteral	value: 4	type: int
+                        CompoundStmt
+                            Sequence
+                                DeclStmt
+                                    DefNode	isConst:true	isArray:false
+                                        Id	name: a	scope: 3	type: const int
+                                        InitValNode	isConst:true	isArray:false
+                                            IntegerLiteral	value: 10	type: int
+                                    DefNode	isConst:true	isArray:false
+                                        Id	name: b	scope: 3	type: const int
+                                        InitValNode	isConst:true	isArray:false
+                                            IntegerLiteral	value: 20	type: int
+                        CompoundStmt
+                            Null Stmt
+                    WhileStmt
+                        BinaryExpr	op: less	type: bool
+                            Id	name: x	scope: 2	type: int
+                            IntegerLiteral	value: 10	type: int
+                        CompoundStmt
+                            Sequence
+                                AssignStmt
+                                    Id	name: y	scope: 2	type: int
+                                    BinaryExpr	op: add	type: int
+                                        Id	name: y	scope: 2	type: int
+                                        IntegerLiteral	value: 1	type: int
+                                AssignStmt
+                                    Id	name: x	scope: 2	type: int
+                                    BinaryExpr	op: add	type: int
+                                        Id	name: x	scope: 2	type: int
+                                        IntegerLiteral	value: 1	type: int
+                    DeclStmt
+                        DefNode	isConst:false	isArray:false
+                            Id	name: m	scope: 2	type: int
+                            InitValNode	isConst:false	isArray:false
+                                BinaryExpr	op: add	type: int
+                                    IntegerLiteral	value: 1	type: int
+                                    Id	name: x	scope: 2	type: int
+                        DefNode	isConst:false	isArray:false
+                            Id	name: n	scope: 2	type: int
+                            InitValNode	isConst:false	isArray:false
+                                IntegerLiteral	value: 2	type: int
+                        DefNode	isConst:false	isArray:false
+                            Id	name: p	scope: 2	type: int
+                            null
+                    DeclStmt
+                        DefNode	isConst:false	isArray:false
+                            Id	name: f	scope: 2	type: int
+                            InitValNode	isConst:false	isArray:false
+                                FuncCallNode	funcName: func	 funcType: int()	scope: 0
+                                    FuncCallParamsNode
+                                        Id	name: x	scope: 2	type: int
+                                        Id	name: y	scope: 2	type: int
+                    ReturnStmt
+                        BinaryExpr	op: add	type: float
+                            IntegerLiteral	value: 1	type: int
+                            Id	name: aaa	scope: 0	type: const int

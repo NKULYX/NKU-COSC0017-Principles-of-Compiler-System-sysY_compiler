@@ -19,6 +19,11 @@ void Ast::output()
         root->output(4);
 }
 
+Type* ExprNode::getType()
+{
+    return symbolEntry->getType();
+}
+
 void BinaryExpr::output(int level)
 {
     std::string op_str;
@@ -64,7 +69,7 @@ void BinaryExpr::output(int level)
             op_str = "neq";
             break;
     }
-    fprintf(yyout, "%*cBinaryExpr\top: %s\n", level, ' ', op_str.c_str());
+    fprintf(yyout, "%*cBinaryExpr\top: %s\ttype: %s\n", level, ' ', op_str.c_str(), symbolEntry->getType()->toStr().c_str());
     expr1->output(level + 4);
     expr2->output(level + 4);
 }
@@ -79,7 +84,7 @@ void OneOpExpr::output(int level) {
             op_str = "minus";
             break;
     }
-    fprintf(yyout, "%*cOneOpExpr\top: %s\n", level, ' ', op_str.c_str());
+    fprintf(yyout, "%*cOneOpExpr\top: %s\ttype: %s\n", level, ' ', op_str.c_str(), symbolEntry->getType()->toStr().c_str());
     expr->output(level + 4);
 }
 
