@@ -17,7 +17,7 @@
 
 %union {
     int itype;
-    float ftype;
+    double ftype;
     char* strtype;
     StmtNode* stmttype;
     ExprNode* exprtype;
@@ -36,6 +36,7 @@
 
 %type <stmttype> Stmts Stmt AssignStmt ExpStmt BlockStmt IfStmt WhileStmt BreakStmt ContinueStmt ReturnStmt
 %type <stmttype> DeclStmt ConstDefList ConstDef ConstInitVal VarDefList VarDef VarInitVal FuncDef FuncParams FuncParam FuncRParams
+%type <stmttype> ArrConstIndices ArrValIndices ConstInitValList VarInitValList
 %type <exprtype> Exp ConstExp AddExp MulExp UnaryExp PrimaryExp LVal Cond LOrExp LAndExp EqExp RelExp
 %type <type> Type
 
@@ -93,7 +94,21 @@ LVal
             $$ = new Id(se);
             delete []$1;
         }
-    // 缺少数组的左值
+    // 数组左值
+    |   ID ArrValIndices {
+            SymbolEntry *se;
+            se = identifiers->lookup($1);
+            if(se == nullptr)
+            {
+                fprintf(stderr, "identifier \"%s\" is undefined\n", (char*)$1);
+                delete [](char*)$1;
+                assert(se != nullptr);
+            }
+            Id* newId = new Id(se);
+            newId->addIndices((ExprStmtNode*)$2);
+            $$ =  newId;
+            delete []$1;
+        }
     ;
 
 // 赋值语句
@@ -150,17 +165,17 @@ WhileStmt
         }
     ;
 
-//todo break 语句
+//break 语句
 BreakStmt
     :   BREAK SEMICOLON {
-            std::cout << "BreakStmt -> BREAK SEMICOLON" << std::endl;
+            $$ = new BreakStmt();
         }
     ;
 
-//todo continue 语句
+//continue 语句
 ContinueStmt
     :   CONTINUE SEMICOLON{
-            std::cout << "ContinueStmt -> CONTINUE SEMICOLON" << std::endl;
+            $$ = new ContinueStmt();
         }
     ;
 
@@ -171,7 +186,7 @@ ReturnStmt
             $$ = new ReturnStmt($2);
         }
     |   RETURN SEMICOLON {
-            std::cout << "ReturnStmt -> RETURN SEMICOLON" << std::endl;
+            $$ = new ReturnStmt(nullptr);
         }
     ;
 
@@ -398,6 +413,34 @@ Type
         }
     ;
 
+// 数组的常量下标表示
+ArrConstIndices 
+    :   ArrConstIndices LBRACKET ConstExp RBRACKET {
+            ExprStmtNode* node = (ExprStmtNode*)$1;
+            node->addNext($3);
+            $$ = node;          
+        }
+    |   LBRACKET ConstExp RBRACKET {
+            ExprStmtNode* node = new ExprStmtNode();
+            node->addNext($2);
+            $$ = node;
+        }
+    ;
+
+// 数组的变量下标表示
+ArrValIndices 
+    :   ArrValIndices LBRACKET Exp RBRACKET {
+            ExprStmtNode* node = (ExprStmtNode*)$1;
+            node->addNext($3);
+            $$ = node;          
+        }
+    |   LBRACKET Exp RBRACKET {
+            ExprStmtNode* node = new ExprStmtNode();
+            node->addNext($2);
+            $$ = node;
+        }
+    ;
+
 // 声明语句
 DeclStmt
     :   CONST Type ConstDefList SEMICOLON {
@@ -424,7 +467,7 @@ ConstDefList
 
 // 常量定义
 ConstDef
-    :   ID ASSIGN ConstInitVal {
+    :   ID ASSIGN ConstExp {//此处文法有改动
             // 首先将ID插入符号表中
             Type* type;
             if(currentType->isInt()){
@@ -436,19 +479,54 @@ ConstDef
             SymbolEntry *se;
             se = new IdentifierSymbolEntry(type, $1, identifiers->getLevel());
             identifiers->install($1, se);
-            $$ = new DefNode(new Id(se), (InitValNode*)$3, true, false);
+            $$ = new DefNode(new Id(se), (Node*)$3, true, false);//类型向上转换
         }
-    // todo 数组常量的定义
+    |   ID ArrConstIndices ASSIGN ConstInitVal{ 
+            // 首先将ID插入符号表中
+            Type* type;
+            if(currentType->isInt()){
+                type = new ConstIntArrayType();
+            }
+            else{
+                type = new ConstFloatArrayType();
+            }
+            SymbolEntry *se;
+            se = new IdentifierSymbolEntry(type, $1, identifiers->getLevel());
+            identifiers->install($1, se);
+            Id* id = new Id(se);
+            id->addIndices((ExprStmtNode*)$2);
+            $$ = new DefNode(id, (Node*)$4, true, true);//类型向上转换
+        }//数组常量的定义
     ;
 
 // 常量初始化值
 ConstInitVal
-    :   ConstExp {
-            InitValNode* node = new InitValNode(true, false);
-            node->addNext((ExprNode*)$1);
-            $$ = node;
+    :   ConstExp {//不能直接赋值，否则根本无法判断是list还是expr
+            InitValNode* newNode = new InitValNode(true);
+            newNode->setLeafNode((ExprNode*)$1);
+            $$ = newNode;
         }
     // todo 常量数组的初始化值 
+    |   LBRACE ConstInitValList RBRACE{
+            $$ = $2;
+        }
+    |   LBRACE RBRACE{
+            $$ = new InitValNode(true);
+    }
+    ;
+
+// 数组常量初始化列表
+ConstInitValList
+    :   ConstInitValList COMMA ConstInitVal{
+            InitValNode* node = (InitValNode*)$1;
+            node->addNext((InitValNode*)$3);
+            $$ = node;
+        }
+    |   ConstInitVal{
+            InitValNode* newNode = new InitValNode(true);
+            newNode->addNext((InitValNode*)$1);
+            $$ = newNode;
+        }
     ;
 
 // 变量定义列表
@@ -481,7 +559,7 @@ VarDef
             identifiers->install($1, se);
             $$ = new DefNode(new Id(se), nullptr, false, false);
         }
-    |   ID ASSIGN VarInitVal {
+    |   ID ASSIGN Exp {
             // 首先将ID插入符号表中
             Type* type;
             if(currentType->isInt()){
@@ -493,19 +571,69 @@ VarDef
             SymbolEntry *se;
             se = new IdentifierSymbolEntry(type, $1, identifiers->getLevel());
             identifiers->install($1, se);
-            $$ = new DefNode(new Id(se), (InitValNode*)$3, false, false);
+            $$ = new DefNode(new Id(se), (Node*)$3, false, false);//类型向上转换
         }
     // todo 数组变量的定义
+    |   ID ArrConstIndices {
+            Type* type;
+            if(currentType->isInt()){
+                type = new IntArrayType();
+            }
+            else{
+                type = new FloatArrayType();
+            }
+            SymbolEntry *se;
+            se = new IdentifierSymbolEntry(type, $1, identifiers->getLevel());
+            identifiers->install($1, se);
+            Id* id = new Id(se);
+            id->addIndices((ExprStmtNode*)$2);
+            $$ = new DefNode(id, nullptr, false, true);//类型向上转换
+        }
+    |   ID ArrConstIndices ASSIGN VarInitVal{
+            Type* type;
+            if(currentType->isInt()){
+                type = new IntArrayType();
+            }
+            else{
+                type = new FloatArrayType();
+            }
+            SymbolEntry *se;
+            se = new IdentifierSymbolEntry(type, $1, identifiers->getLevel());
+            identifiers->install($1, se);
+            Id* id = new Id(se);
+            id->addIndices((ExprStmtNode*)$2);
+            $$ = new DefNode(id, (Node*)$4, false, true);//类型向上转换
+        }
     ;
 
 // 变量初始化值
 VarInitVal
     :   Exp {
-            InitValNode* node = new InitValNode(false, false);
-            node->addNext((ExprNode*)$1);
+            InitValNode* node = new InitValNode(false);
+            node->setLeafNode((ExprNode*)$1);
             $$ = node;
         }
     // todo 数组变量的初始化值
+    |   LBRACE VarInitValList RBRACE{
+            $$ = $2;
+        }
+    |   LBRACE RBRACE{
+            $$ = new InitValNode(false);
+    }
+    ; 
+
+// 数组变量初始化列表
+VarInitValList
+    :   VarInitValList COMMA VarInitVal{
+            InitValNode* node = (InitValNode*)$1;
+            node->addNext((InitValNode*)$3);
+            $$ = node;
+        }
+    |   VarInitVal{
+            InitValNode* newNode = new InitValNode(false);
+            newNode->addNext((InitValNode*)$1);
+            $$ = newNode;
+        }
     ;
 
 // 函数定义
@@ -517,11 +645,20 @@ FuncDef
             identifiers->install($2, se);
             identifiers = new SymbolTable(identifiers);
         }
-        LPAREN FuncParams RPAREN BlockStmt {
+        LPAREN FuncParams{
             SymbolEntry *se;
             se = identifiers->lookup($2);
             assert(se != nullptr);
-            $$ = new FunctionDef(se, (FuncDefParamsNode*)$5, $7);
+            if($5!=nullptr){
+                //将函数参数类型写入符号表
+                ((FunctionType*)(se->getType()))->setparamsType(((FuncDefParamsNode*)$5)->getParamsType());
+            }   
+        } 
+        RPAREN BlockStmt {
+            SymbolEntry *se;
+            se = identifiers->lookup($2);
+            assert(se != nullptr);
+            $$ = new FunctionDef(se, (FuncDefParamsNode*)$5, $8);
             SymbolTable *top = identifiers;
             identifiers = identifiers->getPrev();
             delete top;
@@ -553,7 +690,40 @@ FuncParam
             identifiers->install($2, se);
             $$ = new DefNode(new Id(se), nullptr, false, false);
         }
-    // todo 数组函数参数
+    //数组函数参数
+    |   Type ID LBRACKET RBRACKET ArrConstIndices{
+            Type* arrayType; 
+            if($1==TypeSystem::intType){
+                arrayType = new IntArrayType();
+                ((IntArrayType*)arrayType)->pushBackDimension(-1);
+            }
+            else if($1==TypeSystem::floatType){
+                arrayType = new FloatArrayType();
+                ((FloatArrayType*)arrayType)->pushBackDimension(-1);
+            }
+            //最高维未指定，记为默认值-1
+            SymbolEntry *se = new IdentifierSymbolEntry(arrayType, $2, identifiers->getLevel());
+            identifiers->install($2, se);
+            Id* id = new Id(se);
+            id->addIndices((ExprStmtNode*)$5);
+            $$ = new DefNode(id, nullptr, false, true);
+        }
+    |   Type ID LBRACKET RBRACKET{
+            Type* arrayType; 
+            if($1==TypeSystem::intType){
+                arrayType = new IntArrayType();
+                ((IntArrayType*)arrayType)->pushBackDimension(-1);
+            }
+            else if($1==TypeSystem::floatType){
+                arrayType = new FloatArrayType();
+                ((FloatArrayType*)arrayType)->pushBackDimension(-1);
+            }
+            //最高维未指定，记为默认值-1
+            SymbolEntry *se = new IdentifierSymbolEntry(arrayType, $2, identifiers->getLevel());
+            identifiers->install($2, se);
+            Id* id = new Id(se);
+            $$ = new DefNode(id, nullptr, false, true);
+        }
     ;
     
 %%

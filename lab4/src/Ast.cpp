@@ -97,6 +97,11 @@ void Constant::output(int level)
             value.c_str(), type.c_str());
 }
 
+bool Id::isArray()
+{
+    return getType()->isArray();
+}
+
 void Id::output(int level)
 {
     std::string name, type;
@@ -106,6 +111,9 @@ void Id::output(int level)
     scope = dynamic_cast<IdentifierSymbolEntry*>(symbolEntry)->getScope();
     fprintf(yyout, "%*cId\tname: %s\tscope: %d\ttype: %s\n", level, ' ',
             name.c_str(), scope, type.c_str());
+    if(isArray() && indices!=nullptr){
+        indices->output(level+4);
+    }
 }
 
 void EmptyStmt::output(int level)
@@ -210,20 +218,32 @@ void DefNode::output(int level)
     }
 }
 
-void InitValNode::addNext(ExprNode* next)
+void InitValNode::addNext(InitValNode* next)
 {
-    initValList.push_back(next);
+    innerList.push_back(next);
 }
 
 void InitValNode::output(int level)
 {
     std::string constStr = isConst ? "true" : "false";
-    std::string arrayStr = isArray ? "true" : "false";
-    fprintf(yyout, "%*cInitValNode\tisConst:%s\tisArray:%s\n", level, ' ', constStr.c_str(), arrayStr.c_str());
-    for(auto val : initValList)
+    fprintf(yyout, "%*cInitValNode\tisConst:%s\n", level, ' ', constStr.c_str());
+    for(auto child : innerList)
     {
-        val->output(level+4);
+        child->output(level+4);
     }
+    if(leafNode!=nullptr){
+        leafNode->output(level+4);
+    }
+}
+
+void InitValNode::setLeafNode(ExprNode* leaf)
+{
+    leafNode = leaf;
+}
+
+bool InitValNode::isLeaf()
+{
+    return innerList.empty();
 }
 
 void IfStmt::output(int level)
@@ -248,10 +268,20 @@ void WhileStmt::output(int level)
     bodyStmt->output(level+4);
 }
 
+void BreakStmt::output(int level)
+{
+    fprintf(yyout, "%*cBreakStmt\n", level, ' ');
+}
+
+void ContinueStmt::output(int level)
+{
+    fprintf(yyout, "%*cContinueStmt\n", level, ' ');
+}
+
 void ReturnStmt::output(int level)
 {
     fprintf(yyout, "%*cReturnStmt\n", level, ' ');
-    retValue->output(level + 4);
+    if(retValue!=nullptr) retValue->output(level + 4);
 }
 
 void AssignStmt::output(int level)
@@ -264,6 +294,15 @@ void AssignStmt::output(int level)
 void FuncDefParamsNode::addNext(Id* next)
 {
     paramsList.push_back(next);
+}
+
+std::vector<Type*> FuncDefParamsNode::getParamsType()
+{
+    std::vector<Type*> typeArray;
+    for(auto param : paramsList){
+        typeArray.push_back(param->getType());
+    }
+    return typeArray;
 }
 
 void FuncDefParamsNode::output(int level)

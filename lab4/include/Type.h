@@ -8,7 +8,7 @@ class Type
 private:
     int kind;
 protected:
-    enum {INT, FLOAT, CONST_INT, CONST_FLOAT, VOID, BOOL, FUNC};
+    enum {INT, FLOAT, CONST_INT, CONST_FLOAT, VOID, BOOL, FUNC, INT_ARRAY, FLOAT_ARRAY, CONST_INT_ARRAY, CONST_FLOAT_ARRAY};
 public:
     Type(int kind) : kind(kind) {};
     virtual ~Type() {};
@@ -18,8 +18,14 @@ public:
     bool isConstInt() const {return kind == CONST_INT;}
     bool isConstFloat() const {return kind == CONST_FLOAT;}
     bool isBool() const {return kind == BOOL;}
-    bool isVoid() const {return kind == VOID;};
-    bool isFunc() const {return kind == FUNC;};
+    bool isVoid() const {return kind == VOID;}
+    bool isFunc() const {return kind == FUNC;}
+    bool isIntArray() const {return kind == INT_ARRAY;}
+    bool isFloatArray() const {return kind == FLOAT_ARRAY;}
+    bool isConstIntArray() const {return kind == CONST_INT_ARRAY;}
+    bool isConstFloatArray() const {return kind == CONST_FLOAT_ARRAY;}
+    bool isArray() const {return kind == INT_ARRAY || kind == FLOAT_ARRAY || 
+                            kind == CONST_FLOAT_ARRAY || kind == CONST_INT_ARRAY;}
 };
 
 class IntType : public Type
@@ -75,6 +81,51 @@ private:
 public:
     FunctionType(Type* returnType, std::vector<Type*> paramsType) : 
     Type(Type::FUNC), returnType(returnType), paramsType(paramsType){};
+    void setparamsType(std::vector<Type*>);
+    std::string toStr();
+};
+
+class IntArrayType : public Type
+{
+private:
+    std::vector<int> dimensions;
+public:
+    IntArrayType() : Type(Type::INT_ARRAY){};
+    void pushBackDimension(int);
+    std::vector<int> getDimensions();
+    std::string toStr();
+};
+
+class FloatArrayType : public Type
+{
+private:
+    std::vector<int> dimensions;
+public:
+    FloatArrayType() : Type(Type::FLOAT_ARRAY){};
+    void pushBackDimension(int);
+    std::vector<int> getDimensions();
+    std::string toStr();
+};
+
+class ConstIntArrayType : public Type
+{
+private:
+    std::vector<int> dimensions;
+public:
+    ConstIntArrayType() : Type(Type::CONST_INT_ARRAY){};
+    void pushBackDimension(int);
+    std::vector<int> getDimensions();
+    std::string toStr();
+};
+
+class ConstFloatArrayType : public Type
+{
+private:
+    std::vector<int> dimensions;
+public:
+    ConstFloatArrayType() : Type(Type::CONST_FLOAT_ARRAY){};
+    void pushBackDimension(int);
+    std::vector<int> getDimensions();
     std::string toStr();
 };
 
