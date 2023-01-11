@@ -1,0 +1,24 @@
+151,154c151,154
+< FAIL: 198_matrix_add	Compile Error
+< FAIL: 199_matrix_sub	Compile Error
+< FAIL: 200_matrix_mul	Compile Error
+< FAIL: 201_matrix_tran	Compile Error
+---
+> PASS: 198_matrix_add
+> PASS: 199_matrix_sub
+> PASS: 200_matrix_mul
+> PASS: 201_matrix_tran
+156c156
+< FAIL: 35_math	Wrong Answer
+---
+> PASS: 35_math
+158,161c158,161
+< FAIL: 37_dct	Compile Error
+< FAIL: 38_light2d	Compile Error
+< FAIL: 39_fp_params	Compile Error
+< Total: 160	Accept: 140	Fail: 20
+---
+> FAIL: 37_dct	Wrong Answer
+> FAIL: 38_light2d	Execute Timeout
+> FAIL: 39_fp_params	Compile Timeout
+> Total: 160	Accept: 145	Fail: 15

@@ -1,0 +1,161 @@
+PASS: 1
+FAIL: 01_var_undef	Compile Error
+FAIL: 02_var_redef	Compile Error
+FAIL: 03_func_undef	Compile Error
+FAIL: 04_func_redef	Compile Error
+FAIL: 05_func_ret_val1	Compile Error
+FAIL: 06_func_ret_val2	Compile Error
+FAIL: 07_expr_test	Compile Error
+FAIL: 08_cond_test	Execute Timeout
+PASS: 000_main
+PASS: 001_var_defn
+PASS: 003_var_defn3
+PASS: 008_const_var_defn
+PASS: 009_const_var_defn2
+PASS: 010_const_var_defn3
+PASS: 014_add
+PASS: 015_add2
+PASS: 016_addc
+PASS: 017_sub
+PASS: 018_sub2
+PASS: 019_subc
+PASS: 020_mul
+PASS: 021_mulc
+PASS: 022_div
+PASS: 023_divc
+PASS: 024_mod
+PASS: 025_rem
+PASS: 026_if
+PASS: 027_if2
+PASS: 043_op_priority1
+PASS: 044_op_priority2
+PASS: 045_op_priority3
+PASS: 046_op_priority4
+PASS: 047_op_priority5
+PASS: 048_stmt_expr
+PASS: 049_unary_op
+PASS: 050_unary_op2
+PASS: 051_logi_assign
+PASS: 054_hex_defn
+PASS: 055_hex_oct_add
+PASS: 056_assign_complex_expr
+PASS: 057_if_complex_expr
+PASS: 095_empty_stmt
+FAIL: 099_skip_spaces	Assemble Error
+PASS: 1068_accumulate
+PASS: 1070_multi
+PASS: 1072_enum
+PASS: 1073_exchange_value
+PASS: 012_func_defn
+PASS: 013_var_defn_func
+PASS: 028_if_test1
+PASS: 029_if_test2
+PASS: 030_if_test3
+PASS: 031_if_test4
+PASS: 032_if_test5
+PASS: 035_while_test2
+PASS: 036_while_test3
+PASS: 039_while_if_test1
+PASS: 040_while_if_test2
+PASS: 041_while_if_test3
+PASS: 069_greatest_common_divisor
+PASS: 100_int_literal
+PASS: 102_short_circuit3
+PASS: 1074_itera_sqrt
+FAIL: 1075_max_container	Compile Error
+PASS: 1076_int_factor_sum
+PASS: 1078_decbinoct
+PASS: 1080_lcm
+PASS: 1083_enc_dec
+PASS: 002_var_defn2
+PASS: 060_scope
+PASS: 096_side_effect
+PASS: 101_scope2
+PASS: 037_break
+PASS: 038_continue
+PASS: 052_comment1
+PASS: 053_comment2
+FAIL: 090_int_io	Compile Error
+PASS: 033_while_if
+PASS: 034_while_test1
+PASS: 082_reverse_output
+PASS: 087_gcd
+PASS: 088_hanoi
+PASS: 004_arr_defn
+PASS: 005_arr_defn2
+FAIL: 006_arr_defn3	Compile Error
+FAIL: 007_arr_defn4	Compile Error
+FAIL: 011_const_array_defn	Compile Error
+FAIL: 042_arr_expr_len	Compile Error
+FAIL: 061_sort_test1	Compile Error
+FAIL: 062_sort_test2	Compile Error
+FAIL: 064_sort_test4	Compile Error
+FAIL: 066_sort_test6	Compile Error
+FAIL: 068_genealogical_tree	Compile Error
+FAIL: 070_multiplication_puzzle	Compile Error
+FAIL: 071_exchange_array	Compile Error
+FAIL: 073_backpack	Compile Error
+FAIL: 074_matrix_add	Compile Error
+FAIL: 075_matrix_sub	Compile Error
+FAIL: 076_matrix_mul	Assemble Error
+FAIL: 077_matrix_tran	Assemble Error
+FAIL: 078_big_int_mul	Compile Error
+FAIL: 081_exgcd	Compile Error
+FAIL: 083_brainfk	Compile Error
+FAIL: 085_dijkstra	Compile Error
+FAIL: 086_full_conn	Assemble Error
+FAIL: 089_hidden_var	Compile Error
+FAIL: 091_kmp	Compile Error
+FAIL: 092_max_flow	Compile Error
+FAIL: 093_n_queens	Compile Error
+FAIL: 094_substr	Compile Error
+FAIL: 1066_go_upstairs	Assemble Error
+FAIL: 1067_remove_duplicate_element	Compile Error
+FAIL: 1069_last_word_length	Compile Error
+FAIL: 1071_max_subsequence_sum	Assemble Error
+FAIL: 1077_unique_path	Assemble Error
+FAIL: 1081_jump_game	Assemble Error
+FAIL: 1082_int_split	Compile Error
+FAIL: 1084_palindrome_number	Assemble Error
+FAIL: 1086_bin_search	Assemble Error
+FAIL: 1088_array_concat	Compile Error
+FAIL: 1090_insert_order	Compile Error
+FAIL: 1091_line_search	Assemble Error
+PASS: 058_short_circuit
+PASS: 059_short_circuit2
+FAIL: 063_sort_test3	Compile Error
+FAIL: 065_sort_test5	Compile Error
+FAIL: 067_sort_test7	Assemble Error
+FAIL: 072_percolation	Compile Error
+FAIL: 079_calculator	Compile Error
+FAIL: 080_color	Compile Error
+FAIL: 084_expr_eval	Compile Error
+FAIL: 097_var_name	Compile Error
+FAIL: 098_chaos_token	Compile Error
+FAIL: 103_long_func	Compile Error
+FAIL: 104_long_array	Assemble Error
+FAIL: 105_long_array2	Compile Error
+FAIL: 106_long_code	Compile Error
+FAIL: 107_long_code2	Assemble Error
+FAIL: 108_many_params	Compile Error
+FAIL: 109_many_params2	Compile Error
+PASS: 110_many_params3
+PASS: 111_many_globals
+FAIL: 112_many_locals	Compile Error
+PASS: 113_many_locals2
+PASS: 114_register_alloc
+FAIL: 115_nested_calls	Compile Error
+PASS: 116_nested_calls2
+FAIL: 117_nested_loops	Assemble Error
+FAIL: 196_float	Compile Error
+FAIL: 198_matrix_add	Compile Error
+FAIL: 199_matrix_sub	Compile Error
+FAIL: 200_matrix_mul	Assemble Error
+FAIL: 201_matrix_tran	Assemble Error
+PASS: 202_register_realloc
+PASS: 35_math
+FAIL: 36_rotate	Assemble Error
+FAIL: 37_dct	Compile Error
+FAIL: 38_light2d	Assemble Error
+FAIL: 39_fp_params	Compile Error
+Total: 160	Accept: 83	Fail: 77

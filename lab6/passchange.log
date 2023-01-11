@@ -1,0 +1,36 @@
+63c63
+< FAIL: 102_short_circuit3	Wrong Answer
+---
+> PASS: 102_short_circuit3
+106c106
+< FAIL: 086_full_conn	Wrong Answer
+---
+> PASS: 086_full_conn
+124,125c124,125
+< FAIL: 058_short_circuit	Wrong Answer
+< FAIL: 059_short_circuit2	Wrong Answer
+---
+> PASS: 058_short_circuit
+> PASS: 059_short_circuit2
+129,130c129,130
+< FAIL: 072_percolation	Wrong Answer
+< FAIL: 079_calculator	Wrong Answer
+---
+> PASS: 072_percolation
+> PASS: 079_calculator
+132c132
+< FAIL: 084_expr_eval	Wrong Answer
+---
+> PASS: 084_expr_eval
+150c150
+< FAIL: 196_float	Wrong Answer
+---
+> FAIL: 196_float	Assemble Error
+157c157
+< FAIL: 36_rotate	Wrong Answer
+---
+> PASS: 36_rotate
+161c161
+< Total: 160	Accept: 135	Fail: 25
+---
+> Total: 160	Accept: 143	Fail: 17

@@ -1,0 +1,7 @@
+.idea
+.vscode
+build
+*.bin
+*.s
+*.ll
+*.o
